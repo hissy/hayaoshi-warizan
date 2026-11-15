@@ -37,7 +37,7 @@ function fail(msg) {
 if (LEVELS.length !== 20) fail("expected 20 levels, got " + LEVELS.length);
 if (LEVELS[0].timeLimit < 19) fail("L1 time should be ~20s, got " + LEVELS[0].timeLimit);
 if (LEVELS[19].timeLimit > 6) fail("L20 time should be ~5-6s, got " + LEVELS[19].timeLimit);
-if (H.DECIMAL_UNLOCK_LEVEL !== 15) fail("decimal unlock should be 15");
+if (H.DECIMAL_UNLOCK_LEVEL !== 15) fail("decimal answers should start at level 15");
 
 console.log("Level table:");
 console.log("Lv  秒  あまり  倍数                          わられる≤  わる≤   商の範囲  はずれ");

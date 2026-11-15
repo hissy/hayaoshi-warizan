@@ -173,7 +173,7 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
-    .level-btn:active:not(.locked) { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.16), var(--shadow); }
+    .level-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.16), var(--shadow); }
     .level-btn .lv { font-size: 20px; line-height: 1.05; font-variant-numeric: tabular-nums; }
     .level-btn .sec { font-size: 10px; font-weight: 800; opacity: 0.95; margin-top: 1px; }
     .level-btn .meta { font-size: 9px; font-weight: 800; margin-top: 1px; opacity: 0.95; }
@@ -181,12 +181,7 @@
     .level-btn.band-b { background: linear-gradient(135deg, #3EDC86, #1EB86A); }
     .level-btn.band-c { background: linear-gradient(135deg, #4CA6FF, #2B78F0); }
     .level-btn.band-d { background: linear-gradient(135deg, #FF7A5C, #F0436E); }
-    .level-btn.locked {
-      background: linear-gradient(135deg, #E4D4C6, #CDB8A8); color: #7A645C;
-      box-shadow: 0 4px 0 #B49A88, var(--shadow);
-    }
     .level-btn.cleared .lv::after { content: " ★"; font-size: 12px; }
-    .level-btn.next-open { outline: 3px solid #fff; box-shadow: 0 4px 0 rgba(0,0,0,0.16), 0 0 0 5px rgba(255, 197, 58, 0.7); }
 
     .toast {
       position: fixed; left: 50%; bottom: calc(18px + var(--safe-b));
@@ -540,7 +535,7 @@
         <p class="lead">わり算の 式を見て、<br>一つだけ ちがう物を 一番早く 選ぼう！</p>
       </div>
 
-      <p class="progress-line" id="progress-line">クリア 0/20　正かい 7問以上で 次が開きます</p>
+      <p class="progress-line" id="progress-line">クリア 0/20　正かい 7問以上で 星が付きます</p>
       <div class="level-grid" id="level-grid"></div>
 
       <div class="card howto">
@@ -548,16 +543,16 @@
         <ol>
           <li>元の式と、<ruby>商<rt>しょう</rt></ruby>が同じ式が 3つ、ちがう式が 1つあります。</li>
           <li>仲間外れを タップして 選ぼう！</li>
-          <li>10問。早いほど 高い点。正かい 7問以上で 次のレベルが 開きます。</li>
+          <li>10問。早いほど 高い点。正かい 7問以上で 星が付きます。</li>
         </ol>
       </div>
-      <div class="format-toggle hidden" id="format-toggle">
+      <div class="format-toggle" id="format-toggle">
         <div class="fmt-label">答え方</div>
         <div class="fmt-btns">
           <button type="button" class="fmt-btn on" id="fmt-rem">あまり</button>
           <button type="button" class="fmt-btn" id="fmt-dec">小数</button>
         </div>
-        <p class="fmt-hint" id="fmt-hint">レベル15から 小数で わり進められます</p>
+        <p class="fmt-hint" id="fmt-hint">レベル15から。商は同じでも、あまりは 変わるよ</p>
       </div>
     </section>
 
@@ -634,7 +629,7 @@
       </div>
     </div>
   </div>
-  <div class="toast" id="toast" role="status">前のレベルを クリアしよう！</div>
+  <div class="toast" id="toast" role="status"></div>
 
 <script>
 /* --- ENGINE START --- */
@@ -1133,13 +1128,13 @@
   }
 
   function emptyProgress() {
-    return { best: emptyBest(), cleared: emptyCleared(), unlocked: 1, answerFormat: "remainder" };
+    return { best: emptyBest(), cleared: emptyCleared(), unlocked: H.LEVEL_COUNT, answerFormat: "remainder" };
   }
 
   function normalizeProgress(src) {
     var p = emptyProgress();
     if (!src) return p;
-    p.unlocked = Math.min(H.LEVEL_COUNT, Math.max(1, Number(src.unlocked) || 1));
+    p.unlocked = H.LEVEL_COUNT;
     p.answerFormat = src.answerFormat === "decimal" ? "decimal" : "remainder";
     if (src.best) {
       for (var i = 1; i <= H.LEVEL_COUNT; i++) p.best[i] = Number(src.best[i]) || 0;
@@ -1260,7 +1255,7 @@
     if (partial.cleared) {
       for (var c in partial.cleared) p.cleared[c] = partial.cleared[c];
     }
-    if (typeof partial.unlocked === "number") p.unlocked = partial.unlocked;
+    p.unlocked = H.LEVEL_COUNT;
     if (partial.answerFormat) p.answerFormat = partial.answerFormat;
     if (typeof partial.sound === "boolean") root.sound = partial.sound;
     saveRoot(root);
@@ -1289,35 +1284,33 @@
     grid.innerHTML = "";
     var clearedN = 0;
     for (var i = 1; i <= H.LEVEL_COUNT; i++) if (view.cleared[i]) clearedN++;
-    $("progress-line").textContent = "クリア " + clearedN + "/" + H.LEVEL_COUNT + "　正かい " + H.CLEAR_CORRECT + "問以上で 次が開きます";
-    var nextOpen = view.unlocked;
+    $("progress-line").textContent = "クリア " + clearedN + "/" + H.LEVEL_COUNT + "　正かい " + H.CLEAR_CORRECT + "問以上で 星が付きます";
     for (var n = 1; n <= H.LEVEL_COUNT; n++) {
       var cfg = H.getLevel(n);
       var btn = document.createElement("button");
       btn.type = "button";
-      var locked = n > view.unlocked;
-      btn.className = "level-btn " + (locked ? "locked" : "open " + levelBand(n));
-      if (!locked && view.cleared[n]) btn.classList.add("cleared");
-      if (!locked && n === nextOpen && !view.cleared[n]) btn.classList.add("next-open");
+      btn.className = "level-btn open " + levelBand(n);
+      if (view.cleared[n]) btn.classList.add("cleared");
       btn.setAttribute("data-level", String(n));
-      btn.setAttribute("aria-label", locked ? ("レベル" + n + "、まだ開けません") : ("レベル" + n + "、" + cfg.timeLimit + "秒"));
+      btn.setAttribute("aria-label", "レベル" + n + "、" + cfg.timeLimit + "秒");
       var best = view.best[n] || 0;
-      btn.innerHTML = '<span class="lv">' + (locked ? "🔒 " : "") + n + "</span>" +
+      btn.innerHTML = '<span class="lv">' + n + "</span>" +
         '<span class="sec">' + cfg.timeLimit + "秒</span>" +
-        (best > 0 && !locked ? '<span class="meta">' + best + "点</span>" : "");
-      btn.addEventListener("click", (function (lv, isLocked) {
+        (best > 0 ? '<span class="meta">' + best + "点</span>" : "");
+      btn.addEventListener("click", (function (lv) {
         return function () {
-          if (isLocked) {
-            showToast("前のレベルを クリアしよう！");
-            return;
-          }
           ensureAudio();
           sfx("click");
           startRound(lv);
         };
-      })(n, locked));
+      })(n));
       grid.appendChild(btn);
     }
+  }
+
+  function answerFormatForLevel(level, answerFormat) {
+    if (level < H.DECIMAL_UNLOCK_LEVEL) return "remainder";
+    return answerFormat === "decimal" ? "decimal" : "remainder";
   }
 
   function ensureAudio() {
@@ -1391,15 +1384,13 @@
   function renderFormatToggle(view) {
     view = view || loadStore();
     var box = $("format-toggle");
-    var unlocked = view.unlocked >= H.DECIMAL_UNLOCK_LEVEL;
-    box.classList.toggle("hidden", !unlocked);
-    if (!unlocked) return;
+    box.classList.remove("hidden");
     var dec = (view.answerFormat || state.answerFormat) === "decimal";
     $("fmt-rem").classList.toggle("on", !dec);
     $("fmt-dec").classList.toggle("on", dec);
     $("fmt-hint").textContent = dec
-      ? "小数まで わり進めると、答えは 同じになります"
-      : "商は同じでも、あまりは 変わるよ";
+      ? "レベル15から。小数まで わり進めると、答えは 同じになります"
+      : "レベル15から。商は同じでも、あまりは 変わるよ";
   }
 
   function updatePlayerChip() {
@@ -1652,8 +1643,7 @@
   }
 
   function formatForLevel(level) {
-    if (level < H.DECIMAL_UNLOCK_LEVEL) return "remainder";
-    return state.answerFormat === "decimal" ? "decimal" : "remainder";
+    return answerFormatForLevel(level, state.answerFormat);
   }
 
   function setPrompt(q) {
@@ -1836,7 +1826,6 @@
     var prev = store.best[lv] || 0;
     var isNew = state.score > prev;
     var cleared = state.correctCount >= H.CLEAR_CORRECT;
-    var justUnlocked = false;
     var patch = {};
     if (isNew) {
       patch.best = {};
@@ -1845,10 +1834,6 @@
     if (cleared) {
       patch.cleared = {};
       patch.cleared[lv] = true;
-      if (lv < H.LEVEL_COUNT && store.unlocked < lv + 1) {
-        patch.unlocked = lv + 1;
-        justUnlocked = true;
-      }
     }
     if (Object.keys(patch).length) store = saveStore(patch);
     $("result-mode").textContent = "レベル" + lv;
@@ -1867,10 +1852,9 @@
     $("stat-streak").textContent = String(state.maxStreak);
     var bestNow = store.best[lv] || state.score;
     var line;
-    if (cleared && justUnlocked) line = "次のレベルが 開きました！";
-    else if (cleared && lv === H.LEVEL_COUNT) line = "全部のレベルを クリアしたよ！";
+    if (cleared && lv === H.LEVEL_COUNT) line = "全部のレベルを クリアしたよ！";
     else if (cleared) line = "このレベルの 最高点は " + bestNow + "点";
-    else line = "正かい " + H.CLEAR_CORRECT + "問以上で 次のレベルが 開きます。";
+    else line = "正かい " + H.CLEAR_CORRECT + "問以上で 星が付きます。";
     if (isNew && line.indexOf("最高点") < 0 && cleared) line = "新記録！ " + line;
     $("result-best-line").textContent = isNew && !cleared
       ? "これまでの最高点を こえました！"
@@ -1998,7 +1982,6 @@
 
   if (/[?&]preview=select\b/.test(location.search) || /[?&]preview=levels\b/.test(location.search)) {
     var demoProg = emptyProgress();
-    demoProg.unlocked = 16;
     demoProg.answerFormat = "remainder";
     for (var pi = 1; pi <= 15; pi++) {
       demoProg.cleared[pi] = true;
