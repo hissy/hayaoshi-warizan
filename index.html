@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FF8A4C">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <title>仲間外れはどれ？ わり算早おしクイズ</title>
+  <style>
+    :root {
+      --bg1: #FFF4DC;
+      --bg2: #FFE0C4;
+      --bg3: #FFD0E0;
+      --ink: #3B2A27;
+      --ink-soft: #6A534C;
+      --card: #FFFDF8;
+      --coral: #FF6B4A;
+      --coral-d: #E24E2F;
+      --sky: #3B9CFF;
+      --sky-d: #1D7DE0;
+      --sun: #FFC53A;
+      --sun-d: #E4A610;
+      --mint: #2ECF7C;
+      --mint-d: #16A85C;
+      --lav: #A78BFA;
+      --pink: #FF7AA2;
+      --line: #F0D8C4;
+      --shadow: 0 10px 28px rgba(180, 90, 50, 0.16);
+      --radius: 24px;
+      --safe-t: env(safe-area-inset-top, 0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --font: "Hiragino Maru Gothic ProN", "Hiragino Rounded Gothic W4", "Yu Gothic", YuGothic, "Noto Sans CJK JP", "Noto Sans JP", "Hiragino Sans", sans-serif;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0; min-height: 100%;
+      font-family: var(--font);
+      color: var(--ink);
+      background: linear-gradient(165deg, var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 100%);
+      background-attachment: fixed;
+      touch-action: manipulation;
+    }
+    body {
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+    button, input { font-family: inherit; }
+    button {
+      cursor: pointer; border: none;
+      touch-action: manipulation;
+    }
+    ruby rt { font-size: 0.45em; font-weight: 700; color: var(--ink-soft); }
+
+    .bg-deco { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(2px); opacity: 0.55; }
+    .blob.a { width: 220px; height: 220px; background: #FFD56A; top: -60px; left: -50px; }
+    .blob.b { width: 180px; height: 180px; background: #FFB4C8; top: 20%; right: -70px; }
+    .blob.c { width: 260px; height: 260px; background: #B8E4FF; bottom: -80px; left: -40px; }
+    .star {
+      position: absolute; color: #FFC53A; font-size: 22px;
+      animation: twinkle 2.8s ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.35; transform: scale(0.85) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.1) rotate(15deg); }
+    }
+
+    .app {
+      position: relative; z-index: 1;
+      width: min(540px, 100%);
+      margin: 0 auto;
+      min-height: 100dvh;
+      padding: calc(8px + var(--safe-t)) 16px calc(16px + var(--safe-b));
+      display: flex; flex-direction: column;
+    }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin-bottom: 8px;
+    }
+    .icon-btn {
+      width: 52px; height: 52px; min-width: 52px; min-height: 52px; border-radius: 16px;
+      background: #fff; box-shadow: var(--shadow);
+      font-size: 22px; display: grid; place-items: center;
+      color: var(--ink);
+      transition: transform 0.12s ease;
+    }
+    .icon-btn:active { transform: scale(0.94); }
+    .icon-btn.off { opacity: 0.55; }
+
+    .hud {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;
+      margin: 0 0 8px;
+    }
+    .hud.hidden { display: none; }
+    .pill {
+      background: #fff; border-radius: 999px; padding: 7px 8px;
+      box-shadow: var(--shadow); font-weight: 800; font-size: 13px;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      white-space: nowrap;
+    }
+    .pill .v { color: var(--coral-d); font-variant-numeric: tabular-nums; }
+    .pill.combo.on { background: #FFF3C4; outline: 2px solid var(--sun); animation: pulse 0.6s ease; }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+
+    .screen { display: none; flex-direction: column; gap: 8px; flex: 1; }
+    .screen.active { display: flex; }
+
+    .hero {
+      text-align: center; padding: 2px 0 0;
+    }
+    .mascot {
+      width: 52px; height: 52px; margin: 0 auto 0;
+      filter: drop-shadow(0 8px 12px rgba(226, 120, 40, 0.25));
+    }
+    .eyebrow {
+      display: inline-block; background: var(--sun); color: var(--ink);
+      font-weight: 900; font-size: 13px; letter-spacing: 0.08em;
+      padding: 4px 12px; border-radius: 999px; margin-bottom: 6px;
+    }
+    h1 {
+      margin: 0; font-size: clamp(22px, 6.4vw, 28px); line-height: 1.2;
+      letter-spacing: 0.02em;
+    }
+    .lead {
+      margin: 4px 0 0; color: var(--ink-soft); font-weight: 700; font-size: 13px; line-height: 1.45;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 10px 14px;
+    }
+
+    .progress-line {
+      text-align: center; font-weight: 800; font-size: 13px; color: var(--ink-soft);
+      margin: 0 0 2px;
+    }
+    .format-toggle {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 10px 12px;
+    }
+    .format-toggle.hidden { display: none; }
+    .format-toggle .fmt-label {
+      font-weight: 900; font-size: 13px; text-align: center; margin-bottom: 8px;
+    }
+    .fmt-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .fmt-btn {
+      min-height: 52px; border-radius: 16px; font-weight: 900; font-size: 18px;
+      background: #FFF1E0; color: var(--ink); box-shadow: 0 3px 0 #E8B888;
+    }
+    .fmt-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #E8B888; }
+    .fmt-btn.on {
+      background: linear-gradient(135deg, #4CA6FF, #2B78F0); color: #fff;
+      box-shadow: 0 3px 0 #1D7DE0;
+    }
+    .fmt-hint { margin: 8px 0 0; text-align: center; font-size: 12px; font-weight: 800; color: var(--ink-soft); }
+    .level-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px;
+    }
+    .level-btn {
+      position: relative;
+      min-height: 70px; padding: 8px 2px 8px;
+      border-radius: 16px; color: #fff; font-weight: 900;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.16), var(--shadow);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .level-btn:active:not(.locked) { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.16), var(--shadow); }
+    .level-btn .lv { font-size: 20px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+    .level-btn .sec { font-size: 10px; font-weight: 800; opacity: 0.95; margin-top: 1px; }
+    .level-btn .meta { font-size: 9px; font-weight: 800; margin-top: 1px; opacity: 0.95; }
+    .level-btn.band-a { background: linear-gradient(135deg, #FFE27A, #FFC53A); color: #3B2A27; box-shadow: 0 4px 0 #E4A610, var(--shadow); }
+    .level-btn.band-b { background: linear-gradient(135deg, #3EDC86, #1EB86A); }
+    .level-btn.band-c { background: linear-gradient(135deg, #4CA6FF, #2B78F0); }
+    .level-btn.band-d { background: linear-gradient(135deg, #FF7A5C, #F0436E); }
+    .level-btn.locked {
+      background: linear-gradient(135deg, #E4D4C6, #CDB8A8); color: #7A645C;
+      box-shadow: 0 4px 0 #B49A88, var(--shadow);
+    }
+    .level-btn.cleared .lv::after { content: " ★"; font-size: 12px; }
+    .level-btn.next-open { outline: 3px solid #fff; box-shadow: 0 4px 0 rgba(0,0,0,0.16), 0 0 0 5px rgba(255, 197, 58, 0.7); }
+
+    .toast {
+      position: fixed; left: 50%; bottom: calc(18px + var(--safe-b));
+      transform: translateX(-50%) translateY(12px);
+      background: #3B2A27; color: #fff; font-weight: 800; font-size: 14px;
+      padding: 10px 16px; border-radius: 999px; z-index: 20;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease;
+      white-space: nowrap; box-shadow: var(--shadow);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .player-chip {
+      display: flex; align-items: center; gap: 8px;
+      min-height: 52px; max-width: calc(100% - 68px);
+      padding: 4px 14px 4px 6px; border-radius: 999px;
+      background: #fff; box-shadow: var(--shadow);
+      font-weight: 900; font-size: 15px; color: var(--ink);
+    }
+    .player-chip.hidden { display: none; }
+    .player-chip .av {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      display: grid; place-items: center; font-size: 22px;
+    }
+    .player-chip .nm {
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    .player-list { display: grid; gap: 10px; }
+    .player-card {
+      display: flex; align-items: center; gap: 8px;
+      text-align: left; padding: 8px 8px 8px 8px;
+      border-radius: 20px; background: #fff; color: var(--ink);
+      box-shadow: 0 4px 0 rgba(0,0,0,0.12), var(--shadow);
+      min-height: 76px;
+    }
+    .player-card.current { outline: 3px solid #FFC53A; }
+    .player-pick {
+      flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px;
+      text-align: left; background: transparent; color: inherit;
+      min-height: 60px; padding: 4px;
+      border-radius: 14px;
+    }
+    .player-pick:active { transform: translateY(1px); }
+    .player-card .av {
+      width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+      display: grid; place-items: center; font-size: 30px;
+    }
+    .player-card .info { flex: 1; min-width: 0; }
+    .player-card .pname { font-size: 20px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .player-card .pmeta { font-size: 12px; font-weight: 800; color: var(--ink-soft); margin-top: 2px; }
+    .player-card .pacts { display: flex; flex-direction: column; gap: 6px; }
+    .mini-btn {
+      min-height: 44px; min-width: 72px; padding: 0 10px;
+      border-radius: 12px; font-weight: 800; font-size: 12px;
+      background: #FFF1E0; color: var(--ink); box-shadow: 0 2px 0 #E8B888;
+    }
+    .mini-btn:active { transform: translateY(2px); box-shadow: 0 0 0 #E8B888; }
+    .mini-btn.danger { background: #FFD6DC; box-shadow: 0 2px 0 #E8A0A8; }
+
+    .overlay {
+      position: fixed; inset: 0; z-index: 30;
+      background: rgba(59, 42, 39, 0.45);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding: 16px 16px calc(16px + var(--safe-b));
+    }
+    .overlay.hidden { display: none; }
+    .editor-card, .confirm-card {
+      width: min(480px, 100%);
+      background: var(--card); border-radius: 24px 24px 20px 20px;
+      box-shadow: var(--shadow); padding: 18px 16px 16px;
+      max-height: min(90dvh, 720px); overflow: auto;
+    }
+    .editor-card h2, .confirm-card h2 { margin: 0 0 12px; font-size: 22px; text-align: center; }
+    .editor-card label {
+      display: block; font-weight: 900; font-size: 14px; margin-bottom: 12px;
+    }
+    .editor-card input[type="text"] {
+      display: block; width: 100%; margin-top: 6px;
+      min-height: 52px; border-radius: 14px; border: 3px solid #FFD7B0;
+      padding: 8px 12px; font-size: 18px; font-weight: 800; color: var(--ink);
+      background: #fff; appearance: none;
+    }
+    .avatar-label { font-weight: 900; font-size: 14px; margin: 4px 0 8px; }
+    .emoji-grid, .color-grid {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+      margin-bottom: 14px;
+    }
+    .emoji-pick, .color-pick {
+      aspect-ratio: 1; min-height: 48px; border-radius: 14px;
+      background: #FFF1E0; font-size: 24px;
+      display: grid; place-items: center;
+    }
+    .emoji-pick.on, .color-pick.on { outline: 3px solid #2B78F0; }
+    .color-pick { border: 3px solid transparent; }
+    .confirm-card p { font-weight: 800; text-align: center; line-height: 1.6; margin: 0 0 16px; }
+    .result-player {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-weight: 900; margin-bottom: 6px;
+    }
+    .result-player .av {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 20px;
+    }
+
+    .howto h2, .card h2 {
+      margin: 0 0 8px; font-size: 16px;
+    }
+    .howto ol { margin: 0; padding-left: 1.3em; font-weight: 700; color: var(--ink-soft); line-height: 1.5; font-size: 12.5px; }
+    .howto li { margin: 2px 0; }
+
+    .timer-wrap { margin: 2px 0 4px; }
+    .timer-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-weight: 900; margin-bottom: 6px;
+    }
+    .timer-sec {
+      font-size: 22px; font-variant-numeric: tabular-nums; color: var(--coral-d);
+    }
+    .timer-sec.warn { color: #E11D48; animation: blink 0.5s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0.4; } }
+    .bar {
+      height: 14px; background: #FFE8D2; border-radius: 999px; overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+    }
+    .bar > i {
+      display: block; height: 100%; width: 100%;
+      background: linear-gradient(90deg, #3EDC86, #FFC53A 70%, #FF6B4A);
+      transform-origin: left center;
+      border-radius: 999px;
+    }
+
+    .prompt {
+      text-align: center;
+      background: #fff;
+      border: 3px solid #FFD7B0;
+    }
+    .prompt .q-label {
+      font-weight: 900; font-size: 14px; color: var(--ink); margin-bottom: 8px;
+    }
+    .base-expr {
+      font-size: clamp(34px, 10vw, 48px);
+      font-weight: 900; letter-spacing: 0.02em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+    .prompt .ask {
+      margin-top: 10px; font-weight: 900; font-size: 18px;
+    }
+    .ask em {
+      font-style: normal; background: #FFE07A; padding: 0 6px; border-radius: 8px;
+    }
+
+    .choices {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      margin-top: 4px;
+    }
+    .choice {
+      min-height: 100px; border-radius: 22px;
+      background: #fff;
+      border: 4px solid #FFD7B0;
+      box-shadow: 0 6px 0 #E8B888, var(--shadow);
+      font-size: clamp(22px, 6.2vw, 28px);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+      position: relative;
+      padding: 18px 8px 14px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+    .choice:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 #E8B888, var(--shadow); }
+    .choice-sub {
+      display: block; margin-top: 4px;
+      font-size: 14px; font-weight: 800; color: var(--ink-soft);
+    }
+    .choice.correct {
+      background: #D1FBE3; border-color: #2ECF7C; box-shadow: 0 6px 0 #16A85C;
+    }
+    .choice.wrong-pick {
+      background: #FFD6DC; border-color: #F0436E; box-shadow: 0 6px 0 #C81E4A;
+      animation: shake 0.45s ease;
+    }
+    .choice.odd-reveal {
+      background: #D1FBE3; border-color: #2ECF7C; box-shadow: 0 6px 0 #16A85C;
+      outline: 4px solid rgba(46, 207, 124, 0.45);
+    }
+    .choice.dim { opacity: 0.55; }
+    .choice:disabled { cursor: default; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+    @keyframes pop {
+      0% { transform: scale(0.96); }
+      100% { transform: scale(1); }
+    }
+    .pop { animation: pop 0.28s ease; }
+
+    .judge {
+      text-align: center; font-weight: 900; font-size: 28px; margin: 2px 0;
+    }
+    .judge.ok { color: #16A85C; }
+    .judge.ng { color: #E11D48; }
+    .gain {
+      text-align: center; font-weight: 800; color: var(--ink-soft); font-size: 15px;
+    }
+    .gain .big { color: var(--coral-d); font-size: 20px; }
+
+    .explain {
+      background: #FFF7EA; border-radius: 18px; padding: 14px 16px;
+      font-weight: 700; line-height: 1.7; font-size: 15px;
+    }
+    .explain .chain {
+      font-size: 18px; font-weight: 900; text-align: center;
+      margin-bottom: 8px; font-variant-numeric: tabular-nums;
+    }
+    .explain .tip-box {
+      margin-top: 12px; background: #E8F6FF; border-radius: 14px; padding: 12px;
+      border: 2px dashed #7EC8F8;
+    }
+    .explain .tip-box .t {
+      font-weight: 900; color: var(--sky-d); font-size: 13px; margin-bottom: 4px;
+    }
+
+    .primary, .ghost {
+      min-height: 56px; border-radius: 18px; font-weight: 900; font-size: 18px;
+      padding: 12px 18px;
+    }
+    .primary {
+      background: linear-gradient(135deg, #FF8A4C, #FF5D6C);
+      color: #fff; box-shadow: 0 6px 0 #D64545;
+    }
+    .primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #D64545; }
+    .ghost {
+      background: #fff; color: var(--ink); box-shadow: var(--shadow);
+    }
+    .row-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .primary.wide { width: 100%; margin-top: 2px; }
+
+
+    .result-hero { text-align: center; padding-top: 6px; }
+    .result-hero h2 { margin: 0; font-size: 30px; }
+    .score-big {
+      font-size: 64px; font-weight: 900; color: var(--coral-d);
+      font-variant-numeric: tabular-nums; line-height: 1;
+      margin: 8px 0 4px;
+    }
+    .new-best {
+      display: none; background: var(--sun); font-weight: 900;
+      padding: 4px 12px; border-radius: 999px; margin: 0 auto 8px;
+    }
+    .new-best.show { display: inline-block; }
+    .stats {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .stat {
+      background: #FFF7EA; border-radius: 16px; padding: 12px; text-align: center;
+    }
+    .stat .k { font-size: 12px; font-weight: 800; color: var(--ink-soft); }
+    .stat .n { font-size: 24px; font-weight: 900; margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+    .hidden { display: none !important; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); border: 0;
+    }
+
+    @media (max-width: 380px) {
+      .choice { min-height: 88px; font-size: 20px; }
+      .score-big { font-size: 52px; }
+      h1 { font-size: 26px; }
+      .level-btn { min-height: 64px; }
+    }
+    @media (min-width: 600px) {
+      .app { width: min(700px, 100%); }
+      .level-grid { gap: 10px; }
+      .level-btn { min-height: 84px; }
+      .level-btn .lv { font-size: 24px; }
+      .choice { min-height: 120px; font-size: 30px; }
+      .choice-sub { font-size: 16px; }
+      .primary, .ghost { min-height: 60px; }
+    }
+    @media (min-width: 768px) {
+      .level-grid { grid-template-columns: repeat(5, 1fr); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important; transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-deco" aria-hidden="true">
+    <div class="blob a"></div>
+    <div class="blob b"></div>
+    <div class="blob c"></div>
+    <span class="star" style="top:12%;left:18%;">★</span>
+    <span class="star" style="top:8%;right:16%;animation-delay:.7s;">✦</span>
+    <span class="star" style="bottom:18%;right:10%;animation-delay:1.2s;">★</span>
+    <span class="star" style="bottom:28%;left:8%;animation-delay:1.8s;">✧</span>
+  </div>
+
+  <div class="app">
+    <div class="topbar">
+      <button type="button" class="icon-btn hidden" id="btn-back" aria-label="レベルを選ぶ">↩</button>
+      <button type="button" class="player-chip hidden" id="btn-player" aria-label="プレイヤーを選ぶ">
+        <span class="av" id="chip-av">😊</span>
+        <span class="nm" id="chip-name">プレイヤー1</span>
+      </button>
+      <div style="flex:1" id="top-spacer"></div>
+      <button type="button" class="icon-btn" id="btn-sound" aria-label="音" aria-pressed="true">🔊</button>
+    </div>
+    <div class="hud hidden" id="hud">
+      <div class="pill">問題 <span class="v" id="hud-q">1</span>/10</div>
+      <div class="pill">点数 <span class="v" id="hud-score">0</span></div>
+      <div class="pill combo" id="hud-combo">連続 <span class="v" id="hud-streak">0</span></div>
+    </div>
+
+    <section class="screen active" id="screen-players">
+      <div class="hero">
+        <div class="eyebrow">早おしクイズ</div>
+        <h1>だれで 遊ぶ？</h1>
+        <p class="lead">記録は プレイヤーごとに 分かれます</p>
+      </div>
+      <div class="player-list" id="player-list"></div>
+      <button type="button" class="primary wide" id="btn-add-player">＋ 新しく 作る</button>
+    </section>
+
+    <section class="screen" id="screen-title">
+      <div class="hero">
+        <svg class="mascot" viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="52" fill="#FFC53A"/>
+          <circle cx="60" cy="60" r="44" fill="#FFE27A"/>
+          <circle cx="44" cy="52" r="6" fill="#3B2A27"/>
+          <circle cx="76" cy="52" r="6" fill="#3B2A27"/>
+          <path d="M44 74c8 12 24 12 32 0" fill="none" stroke="#3B2A27" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="28" cy="66" r="8" fill="#FF8A4C"/>
+          <circle cx="92" cy="66" r="8" fill="#FF8A4C"/>
+        </svg>
+        <div class="eyebrow">早おしクイズ</div>
+        <h1>仲間外れはどれ？</h1>
+        <p class="lead">わり算の 式を見て、<br>一つだけ ちがう物を 一番早く 選ぼう！</p>
+      </div>
+
+      <p class="progress-line" id="progress-line">クリア 0/20　正かい 7問以上で 次が開きます</p>
+      <div class="level-grid" id="level-grid"></div>
+
+      <div class="card howto">
+        <h2>遊び方</h2>
+        <ol>
+          <li>元の式と、<ruby>商<rt>しょう</rt></ruby>が同じ式が 3つ、ちがう式が 1つあります。</li>
+          <li>仲間外れを タップして 選ぼう！</li>
+          <li>10問。早いほど 高い点。正かい 7問以上で 次のレベルが 開きます。</li>
+        </ol>
+      </div>
+      <div class="format-toggle hidden" id="format-toggle">
+        <div class="fmt-label">答え方</div>
+        <div class="fmt-btns">
+          <button type="button" class="fmt-btn on" id="fmt-rem">あまり</button>
+          <button type="button" class="fmt-btn" id="fmt-dec">小数</button>
+        </div>
+        <p class="fmt-hint" id="fmt-hint">レベル15から 小数で わり進められます</p>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-play">
+      <div class="timer-wrap">
+        <div class="timer-row">
+          <span><span id="play-level">レベル1</span>　残り時間</span>
+          <span class="timer-sec" id="timer-sec">15.0</span>
+        </div>
+        <div class="bar" aria-hidden="true"><i id="timer-bar"></i></div>
+      </div>
+      <div class="card prompt pop" id="prompt-card">
+        <div class="q-label" id="q-label">次の わり算と <ruby>商<rt>しょう</rt></ruby>が 同じ式は どれ？</div>
+        <div class="base-expr" id="base-expr">1800÷32</div>
+        <div class="ask"><em>仲間外れ</em> はどれ？</div>
+      </div>
+      <div class="choices" id="choices"></div>
+    </section>
+
+    <section class="screen" id="screen-explain">
+      <div class="judge" id="judge">正かい！</div>
+      <div class="gain" id="gain"></div>
+      <div class="choices" id="explain-choices"></div>
+      <div class="explain" id="explain-body"></div>
+      <button type="button" class="primary" id="btn-next">次へ</button>
+    </section>
+
+    <section class="screen" id="screen-result">
+      <div class="result-hero">
+        <div class="result-player" id="result-player"></div>
+        <div class="eyebrow" id="result-mode">レベル1</div>
+        <h2 id="result-title">おつかれさま！</h2>
+        <div class="new-best" id="new-best">🎉 新記録！</div>
+        <div class="score-big" id="result-score">0</div>
+        <div style="font-weight:800;color:var(--ink-soft)">点</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="k">正かい</div><div class="n" id="stat-acc">0/10</div></div>
+        <div class="stat"><div class="k">正かいりつ</div><div class="n" id="stat-rate">0%</div></div>
+        <div class="stat"><div class="k">合計時間</div><div class="n" id="stat-time">0.0秒</div></div>
+        <div class="stat"><div class="k">最大連続</div><div class="n" id="stat-streak">0</div></div>
+      </div>
+      <div class="card" style="text-align:center;font-weight:800;color:var(--ink-soft)" id="result-best-line"></div>
+      <div class="row-btns">
+        <button type="button" class="ghost" id="btn-title">レベルを選ぶ</button>
+        <button type="button" class="primary" id="btn-again">もう一度</button>
+      </div>
+      <button type="button" class="primary wide hidden" id="btn-next-level">次のレベルへ</button>
+    </section>
+  </div>
+  <div class="overlay hidden" id="player-editor" role="dialog" aria-labelledby="editor-title">
+    <div class="editor-card">
+      <h2 id="editor-title">新しいプレイヤー</h2>
+      <label>名前
+        <input id="player-name" type="text" maxlength="12" autocomplete="off" enterkeyhint="done" inputmode="text">
+      </label>
+      <div class="avatar-label">見た目</div>
+      <div class="emoji-grid" id="emoji-grid"></div>
+      <div class="avatar-label">色</div>
+      <div class="color-grid" id="color-grid"></div>
+      <div class="row-btns">
+        <button type="button" class="ghost" id="btn-editor-cancel">やめる</button>
+        <button type="button" class="primary" id="btn-editor-save">作る</button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay hidden" id="player-confirm" role="dialog" aria-labelledby="confirm-title">
+    <div class="confirm-card">
+      <h2 id="confirm-title">消しますか？</h2>
+      <p id="confirm-body">本当に消しますか？ 記録も 消えます。</p>
+      <div class="row-btns">
+        <button type="button" class="ghost" id="btn-confirm-no">やめる</button>
+        <button type="button" class="primary" id="btn-confirm-yes">消す</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status">前のレベルを クリアしよう！</div>
+
+<script>
+/* --- ENGINE START --- */
+(function (global) {
+  "use strict";
+
+  var CLEAR_CORRECT = 7;
+  var LEVEL_COUNT = 20;
+  // Level table: numbers/倍数 get harder, time shrinks. Time is seconds per question.
+  var LEVELS = [
+    { id: 1,  factors: [1, 2, 4, 8],                 qMin: 2,  qMax: 6,  remainChance: 0,    maxDividend: 100,  maxDivisor: 20,  trap: "obvious", timeLimit: 20, factorPower: 0.8 },
+    { id: 2,  factors: [1, 2, 4, 8, 10],             qMin: 2,  qMax: 8,  remainChance: 0,    maxDividend: 120,  maxDivisor: 24,  trap: "obvious", timeLimit: 19, factorPower: 0.8 },
+    { id: 3,  factors: [1, 2, 4, 5, 8, 10],          qMin: 2,  qMax: 9,  remainChance: 0,    maxDividend: 150,  maxDivisor: 30,  trap: "obvious", timeLimit: 18, factorPower: 0.9 },
+    { id: 4,  factors: [1, 2, 3, 4, 5, 8, 10],       qMin: 2,  qMax: 9,  remainChance: 0,    maxDividend: 180,  maxDivisor: 36,  trap: "obvious", timeLimit: 17, factorPower: 0.9 },
+    { id: 5,  factors: [1, 2, 3, 4, 5, 6, 8, 10],    qMin: 3,  qMax: 10, remainChance: 0,    maxDividend: 240,  maxDivisor: 40,  trap: "obvious", timeLimit: 16, factorPower: 1.0 },
+    { id: 6,  factors: [1, 2, 3, 4, 5, 6, 8, 10],    qMin: 3,  qMax: 11, remainChance: 0,    maxDividend: 300,  maxDivisor: 48,  trap: "mixed",    timeLimit: 15, factorPower: 1.0 },
+    { id: 7,  factors: [1, 2, 3, 4, 5, 6, 8, 10],    qMin: 3,  qMax: 12, remainChance: 0,    maxDividend: 400,  maxDivisor: 56,  trap: "mixed",    timeLimit: 14, factorPower: 1.1 },
+    { id: 8,  factors: [1, 2, 3, 4, 5, 6, 8, 10],    qMin: 3,  qMax: 12, remainChance: 0.2,  maxDividend: 500,  maxDivisor: 64,  trap: "mixed",    timeLimit: 13, factorPower: 1.1 },
+    { id: 9,  factors: [1, 2, 3, 4, 5, 6, 8, 9, 10], qMin: 4,  qMax: 14, remainChance: 0.3,  maxDividend: 650,  maxDivisor: 72,  trap: "mixed",    timeLimit: 12, factorPower: 1.2 },
+    { id: 10, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10], qMin: 4,  qMax: 16, remainChance: 0.35, maxDividend: 800,  maxDivisor: 80,  trap: "mixed",    timeLimit: 11, factorPower: 1.3 },
+    { id: 11, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12], qMin: 4,  qMax: 18, remainChance: 0.4,  maxDividend: 1000, maxDivisor: 90,  trap: "tricky", timeLimit: 10, factorPower: 1.5 },
+    { id: 12, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12], qMin: 5,  qMax: 20, remainChance: 0.4,  maxDividend: 1200, maxDivisor: 100, trap: "tricky", timeLimit: 9,  factorPower: 1.6 },
+    { id: 13, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 16], qMin: 5, qMax: 22, remainChance: 0.45, maxDividend: 1500, maxDivisor: 112, trap: "tricky", timeLimit: 8, factorPower: 1.8 },
+    { id: 14, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 16], qMin: 6, qMax: 24, remainChance: 0.45, maxDividend: 1800, maxDivisor: 128, trap: "tricky", timeLimit: 8, factorPower: 1.9 },
+    { id: 15, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16], qMin: 6, qMax: 28, remainChance: 0.5, maxDividend: 2000, maxDivisor: 144, trap: "tricky", timeLimit: 7, factorPower: 2.0 },
+    { id: 16, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 20], qMin: 8, qMax: 32, remainChance: 0.5, maxDividend: 2400, maxDivisor: 160, trap: "tricky", timeLimit: 7, factorPower: 2.1 },
+    { id: 17, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 20, 25], qMin: 8, qMax: 36, remainChance: 0.5, maxDividend: 2800, maxDivisor: 160, trap: "tricky", timeLimit: 6, factorPower: 2.2 },
+    { id: 18, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 20, 25], qMin: 10, qMax: 44, remainChance: 0.5, maxDividend: 3200, maxDivisor: 180, trap: "tricky", timeLimit: 6, factorPower: 2.3 },
+    { id: 19, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 20, 25], qMin: 12, qMax: 50, remainChance: 0.55, maxDividend: 3600, maxDivisor: 200, trap: "tricky", timeLimit: 6, factorPower: 2.4 },
+    { id: 20, factors: [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 20, 25], qMin: 16, qMax: 56, remainChance: 0.55, maxDividend: 4000, maxDivisor: 200, trap: "tricky", timeLimit: 5, factorPower: 2.5 }
+  ];
+  LEVELS.forEach(function (lv) { lv.name = "レベル" + lv.id; });
+
+  function getLevel(n) {
+    var lv = Number(n);
+    for (var i = 0; i < LEVELS.length; i++) {
+      if (LEVELS[i].id === lv) return LEVELS[i];
+    }
+    return LEVELS[0];
+  }
+
+  function randInt(min, max, rng) {
+    return Math.floor(rng() * (max - min + 1)) + min;
+  }
+
+  function shuffle(arr, rng) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(rng() * (i + 1));
+      var t = a[i];
+      a[i] = a[j];
+      a[j] = t;
+    }
+    return a;
+  }
+
+  function pick(arr, rng) {
+    return arr[Math.floor(rng() * arr.length)];
+  }
+
+  function weightedPick(arr, rng, power) {
+    var sorted = arr.slice().sort(function (a, b) { return a - b; });
+    var sum = 0;
+    var weights = [];
+    for (var i = 0; i < sorted.length; i++) {
+      var w = Math.pow(i + 1, power);
+      weights.push(w);
+      sum += w;
+    }
+    var r = rng() * sum;
+    for (var j = 0; j < sorted.length; j++) {
+      r -= weights[j];
+      if (r <= 0) return sorted[j];
+    }
+    return sorted[sorted.length - 1];
+  }
+
+  function pickN(arr, n, rng) {
+    return shuffle(arr, rng).slice(0, n);
+  }
+
+  function sameQuotient(a1, b1, a2, b2) {
+    return a1 * b2 === a2 * b1;
+  }
+
+  var DECIMAL_UNLOCK_LEVEL = 15;
+
+  function formatQR(dividend, divisor) {
+    var q = Math.floor(dividend / divisor);
+    var r = dividend % divisor;
+    if (r === 0) return q + "（わり切れます）";
+    return q + "あまり" + r;
+  }
+
+  function gcd(a, b) {
+    a = Math.abs(a); b = Math.abs(b);
+    while (b) { var t = a % b; a = b; b = t; }
+    return a || 1;
+  }
+
+  function isTerminating(div, d) {
+    var den = d / gcd(div, d);
+    while (den % 2 === 0) den /= 2;
+    while (den % 5 === 0) den /= 5;
+    return den === 1;
+  }
+
+  function decimalPlaces(div, d) {
+    var den = d / gcd(div, d);
+    var f2 = 0, f5 = 0;
+    while (den % 2 === 0) { den /= 2; f2++; }
+    while (den % 5 === 0) { den /= 5; f5++; }
+    return Math.max(f2, f5);
+  }
+
+  function formatDecimal(div, d) {
+    if (!isTerminating(div, d)) return formatQR(div, d);
+    var g = gcd(div, d);
+    var num = div / g, den = d / g;
+    var intPart = Math.floor(num / den);
+    var rem = num % den;
+    if (rem === 0) return String(intPart);
+    var places = decimalPlaces(div, d);
+    var scale = 1;
+    for (var i = 0; i < places; i++) scale *= 10;
+    var frac = rem * scale / den;
+    var fracStr = String(Math.round(frac));
+    while (fracStr.length < places) fracStr = "0" + fracStr;
+    return intPart + "." + fracStr;
+  }
+
+  function formatAnswer(div, d, format) {
+    return format === "decimal" ? formatDecimal(div, d) : formatQR(div, d);
+  }
+
+  function makeExpr(dividend, divisor, kind, fd, fm) {
+    return {
+      dividend: dividend,
+      divisor: divisor,
+      text: dividend + "÷" + divisor,
+      kind: kind,
+      fd: fd,
+      fm: fm,
+      isOdd: kind === "trap"
+    };
+  }
+
+  function chooseFactors(cfg, rng) {
+    var gt1 = cfg.factors.filter(function (f) { return f > 1; });
+    var power = cfg.factorPower || 1;
+    var baseFactor = weightedPick(gt1, rng, power);
+    var others = cfg.factors.filter(function (f) { return f !== baseFactor && f !== 1; });
+    var extra = pickN(others, 2, rng);
+    return { baseFactor: baseFactor, correctFactors: [1].concat(extra) };
+  }
+
+  function factorFits(a, b, f, cfg) {
+    return a * f <= cfg.maxDividend && b * f <= cfg.maxDivisor;
+  }
+
+  function fittingFactors(a, b, cfg) {
+    return cfg.factors.filter(function (f) { return factorFits(a, b, f, cfg); });
+  }
+
+  function pickViableCore(cfg, rng, format) {
+    var exact = [];
+    var withRem = [];
+    var wantDecimal = format === "decimal";
+    var allowRem = cfg.remainChance > 0 || wantDecimal;
+    for (var b = 2; b <= 9; b++) {
+      for (var qv = cfg.qMin; qv <= cfg.qMax; qv++) {
+        var rMax = allowRem ? b - 1 : 0;
+        for (var r = 0; r <= rMax; r++) {
+          var a = qv * b + r;
+          if (wantDecimal && !isTerminating(a, b)) continue;
+          var pool = fittingFactors(a, b, cfg);
+          if (pool.indexOf(1) < 0 || pool.length < 4) continue;
+          var item = { b: b, q: qv, r: r };
+          if (r > 0) withRem.push(item);
+          else exact.push(item);
+        }
+      }
+    }
+    if (wantDecimal) {
+      if (withRem.length && rng() < 0.8) return pick(withRem, rng);
+      var allD = exact.concat(withRem);
+      return allD.length ? pick(allD, rng) : null;
+    }
+    if (cfg.remainChance > 0 && withRem.length && rng() < cfg.remainChance) return pick(withRem, rng);
+    if (exact.length) return pick(exact, rng);
+    return withRem.length ? pick(withRem, rng) : null;
+  }
+
+  function chooseFittingFactors(a, b, cfg, rng) {
+    var pool = fittingFactors(a, b, cfg);
+    if (pool.indexOf(1) < 0 || pool.length < 4) return null;
+    var rest = pool.filter(function (f) { return f !== 1; });
+    if (rest.length < 3) return null;
+    var baseFactor = weightedPick(rest, rng, cfg.factorPower || 1);
+    var others = rest.filter(function (f) { return f !== baseFactor; });
+    var extra = pickN(others, 2, rng);
+    return { baseFactor: baseFactor, correctFactors: [1].concat(extra) };
+  }
+
+  function makeBeginnerTrap(a, b, baseFactor, correctFactors, rng, cfg) {
+    var q = a / b;
+    var maxD = (cfg && cfg.maxDividend) || 100;
+    var maxd = (cfg && cfg.maxDivisor) || 20;
+    var used = {};
+    var visibleNums = {};
+    function mark(divd, divs) {
+      used[divd + "÷" + divs] = true;
+      visibleNums[divd] = true;
+      visibleNums[divs] = true;
+    }
+    mark(a * baseFactor, b * baseFactor);
+    for (var i = 0; i < correctFactors.length; i++) {
+      mark(a * correctFactors[i], b * correctFactors[i]);
+    }
+    function collect(minDiff) {
+      var candidates = [];
+      for (var q2 = 2; q2 <= 9; q2++) {
+        if (Math.abs(q2 - q) < minDiff) continue;
+        for (var d = 2; d <= 9; d++) {
+          var pairs = [[q2 * d, d], [q2 * d, q2]];
+          for (var p = 0; p < pairs.length; p++) {
+            var dividend = pairs[p][0];
+            var divisor = pairs[p][1];
+            if (divisor <= 1 || dividend > maxD || divisor > maxd) continue;
+            if (dividend % divisor !== 0) continue;
+            if (Math.floor(dividend / divisor) !== q2) continue;
+            var text = dividend + "÷" + divisor;
+            if (used[text]) continue;
+            if (sameQuotient(dividend, divisor, a * baseFactor, b * baseFactor)) continue;
+            var shares = visibleNums[dividend] || visibleNums[divisor];
+            candidates.push({ expr: makeExpr(dividend, divisor, "trap", q2, d), shares: shares });
+          }
+        }
+      }
+      return candidates;
+    }
+    var list = collect(2);
+    if (!list.length) list = collect(1);
+    if (!list.length) return null;
+    var obvious = list.filter(function (c) { return !c.shares; });
+    var pool = (obvious.length ? obvious : list).map(function (c) { return c.expr; });
+    return pick(pool, rng);
+  }
+
+  function makeTrap(a, b, baseFactor, correctFactors, rng) {
+    var allF = [baseFactor].concat(correctFactors);
+    var used = {};
+    used[a * baseFactor + "÷" + b * baseFactor] = true;
+    for (var i = 0; i < correctFactors.length; i++) {
+      var f = correctFactors[i];
+      used[a * f + "÷" + b * f] = true;
+    }
+    var candidates = [];
+    for (var x = 0; x < allF.length; x++) {
+      for (var y = 0; y < allF.length; y++) {
+        var fd = allF[x];
+        var fm = allF[y];
+        if (fd === fm) continue;
+        var dividend = a * fd;
+        var divisor = b * fm;
+        if (divisor <= 1) continue;
+        var text = dividend + "÷" + divisor;
+        if (used[text]) continue;
+        if (sameQuotient(dividend, divisor, a * baseFactor, b * baseFactor)) continue;
+        candidates.push(makeExpr(dividend, divisor, "trap", fd, fm));
+      }
+    }
+    if (!candidates.length) return null;
+    var shareBase = candidates.filter(function (c) {
+      return c.dividend === a * baseFactor || c.divisor === b * baseFactor;
+    });
+    var pool = shareBase.length ? shareBase : candidates;
+    return pick(pool, rng);
+  }
+
+  function validateQuestion(q) {
+    if (!q || !q.base || !q.choices || q.choices.length !== 4) return "bad-shape";
+    var odd = 0;
+    var texts = {};
+    for (var i = 0; i < 4; i++) {
+      var c = q.choices[i];
+      if (!c || c.dividend !== (c.dividend | 0) || c.divisor !== (c.divisor | 0)) return "non-int";
+      if (c.dividend <= 0 || c.divisor <= 1) return "bad-range";
+      if (texts[c.text]) return "dup-choice";
+      texts[c.text] = true;
+      if (c.text === q.base.text) return "base-in-choices";
+      var eq = sameQuotient(c.dividend, c.divisor, q.base.dividend, q.base.divisor);
+      if (c.isOdd) {
+        odd++;
+        if (eq) return "odd-same-quotient";
+      } else if (!eq) {
+        return "correct-wrong-quotient";
+      }
+    }
+    if (odd !== 1) return "odd-count:" + odd;
+    if (q.base.dividend !== (q.base.dividend | 0) || q.base.divisor !== (q.base.divisor | 0)) return "base-non-int";
+    return null;
+  }
+
+  function generateQuestion(level, rng, opts) {
+    rng = rng || Math.random;
+    opts = opts || {};
+    var cfg = (level && level.factors) ? level : getLevel(level);
+    var format = opts.format === "decimal" ? "decimal" : "remainder";
+    var lastErr = "unknown";
+    for (var attempt = 0; attempt < 120; attempt++) {
+      var core = pickViableCore(cfg, rng, format);
+      if (!core) {
+        lastErr = "no-core";
+        continue;
+      }
+      var b = core.b;
+      var qv = core.q;
+      var r = core.r || 0;
+      var a = qv * b + r;
+      var fac = chooseFittingFactors(a, b, cfg, rng);
+      if (!fac) {
+        lastErr = "no-factors";
+        continue;
+      }
+      var base = makeExpr(a * fac.baseFactor, b * fac.baseFactor, "base", fac.baseFactor, fac.baseFactor);
+      if (base.dividend > cfg.maxDividend || base.divisor > cfg.maxDivisor) {
+        lastErr = "over-cap";
+        continue;
+      }
+      var corrects = fac.correctFactors.map(function (f) {
+        return makeExpr(a * f, b * f, "correct", f, f);
+      });
+      var useObvious = cfg.trap === "obvious" || (cfg.trap === "mixed" && rng() < 0.5);
+      var trap = useObvious
+        ? makeBeginnerTrap(a, b, fac.baseFactor, fac.correctFactors, rng, cfg)
+        : makeTrap(a, b, fac.baseFactor, fac.correctFactors, rng);
+      if (!trap) {
+        lastErr = "no-trap";
+        continue;
+      }
+      if (trap.dividend > cfg.maxDividend || trap.divisor > cfg.maxDivisor) {
+        lastErr = "trap-over-cap";
+        continue;
+      }
+      if (format === "decimal" && !isTerminating(trap.dividend, trap.divisor)) {
+        lastErr = "trap-non-terminating";
+        continue;
+      }
+      var choices = shuffle(corrects.concat([trap]), rng);
+      var oddIndex = -1;
+      for (var i = 0; i < choices.length; i++) {
+        if (choices[i].isOdd) oddIndex = i;
+      }
+      var question = {
+        difficulty: cfg.id,
+        level: cfg.id,
+        base: base,
+        core: { dividend: a, divisor: b, text: a + "÷" + b, q: qv, r: r },
+        baseFactor: fac.baseFactor,
+        choices: choices,
+        oddIndex: oddIndex,
+        hasRemainder: r > 0,
+        format: format,
+        showQR: format === "remainder" && r > 0 && cfg.id >= 8 && rng() < 0.4
+      };
+      var err = validateQuestion(question);
+      if (!err) return question;
+      lastErr = err;
+    }
+    throw new Error("generateQuestion failed: " + lastErr);
+  }
+
+  function trapReason(q, trap) {
+    var base = q.base;
+    if (trap.dividend === base.dividend && trap.divisor !== base.divisor) {
+      return "外れの " + trap.text + " は、わられる数は同じで、わる数だけがちがいます。だから<ruby>商<rt>しょう</rt></ruby>が変わります。";
+    }
+    if (trap.divisor === base.divisor && trap.dividend !== base.dividend) {
+      return "外れの " + trap.text + " は、わる数は同じで、わられる数だけがちがいます。だから<ruby>商<rt>しょう</rt></ruby>が変わります。";
+    }
+    return "外れの " + trap.text + " は、わられる数とわる数を同じ数でわった式ではないので、<ruby>商<rt>しょう</rt></ruby>がちがいます。";
+  }
+
+  function buildExplanation(q) {
+    var core = q.core;
+    var base = q.base;
+    var trap = q.choices[q.oddIndex];
+    var others = q.choices.filter(function (c) { return !c.isOdd; }).map(function (c) { return c.text; });
+    var chain = base.text + " → ÷" + q.baseFactor + " → " + core.text;
+    var html = "";
+    html += '<div class="chain">' + chain + "</div>";
+    html += "わられる数と わる数を 同じ数で わっても、<ruby>商<rt>しょう</rt></ruby>は 同じ！<br>";
+    html += others.join("、") + " も、同じ<ruby>商<rt>しょう</rt></ruby>になります。<br><br>";
+    html += trapReason(q, trap);
+    var fmt = q.format === "decimal" ? "decimal" : "remainder";
+    html += "<br>" + base.text + "＝" + formatAnswer(base.dividend, base.divisor, fmt);
+    html += "、 " + trap.text + "＝" + formatAnswer(trap.dividend, trap.divisor, fmt) + "。";
+    if (fmt === "decimal") {
+      html += "<br>小数まで わり進めると、答えは 同じになります。";
+    }
+    var tip = null;
+    if (q.hasRemainder) {
+      if (fmt === "decimal") {
+        tip = "ワンポイント！ 小数だと 答えは 同じでも、<ruby>商<rt>しょう</rt></ruby>とあまりで見ると あまりは変わります。<br>";
+        tip += core.text + "＝" + formatQR(core.dividend, core.divisor) + "、";
+        tip += base.text + "＝" + formatQR(base.dividend, base.divisor) + "。<br>";
+        tip += "あまり" + core.r + " を " + q.baseFactor + "倍すると、あまり" + (core.r * q.baseFactor) + "。<br>";
+        tip += "でも 小数にすると、どちらも " + formatDecimal(base.dividend, base.divisor) + "！";
+      } else {
+        tip = "ワンポイント！ <ruby>商<rt>しょう</rt></ruby>は同じでも、あまりは変わります。<br>";
+        tip += core.text + "＝" + formatQR(core.dividend, core.divisor) + " だけど、";
+        tip += base.text + "＝" + formatQR(base.dividend, base.divisor) + "。<br>";
+        tip += "あまり" + core.r + " を " + q.baseFactor + "倍すると、あまり" + (core.r * q.baseFactor) + " になるよ。";
+      }
+    }
+    return { chain: chain, html: html, tip: tip };
+  }
+
+  function comboMultiplier(streak) {
+    if (streak >= 8) return 2.5;
+    if (streak >= 5) return 2;
+    if (streak >= 3) return 1.5;
+    if (streak >= 2) return 1.2;
+    return 1;
+  }
+
+  var api = {
+    LEVELS: LEVELS,
+    LEVEL_COUNT: LEVEL_COUNT,
+    CLEAR_CORRECT: CLEAR_CORRECT,
+    DECIMAL_UNLOCK_LEVEL: DECIMAL_UNLOCK_LEVEL,
+    getLevel: getLevel,
+    generateQuestion: generateQuestion,
+    validateQuestion: validateQuestion,
+    buildExplanation: buildExplanation,
+    formatQR: formatQR,
+    formatDecimal: formatDecimal,
+    formatAnswer: formatAnswer,
+    isTerminating: isTerminating,
+    sameQuotient: sameQuotient,
+    comboMultiplier: comboMultiplier,
+    shuffle: shuffle
+  };
+
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = api;
+  }
+  global.Hayaoshi = api;
+})(typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : this);
+/* --- ENGINE END --- */
+
+(function () {
+  "use strict";
+  if (typeof document === "undefined") return;
+
+  var STORAGE_KEY = "hayaoshi-warizan-v3";
+  var STORAGE_KEY_V2 = "hayaoshi-warizan-v2";
+  var QUESTIONS_PER_ROUND = 10;
+  var MAX_PLAYERS = 8;
+  var H = window.Hayaoshi;
+  var AVATAR_EMOJI = ["😊","⭐","🌸","🍀","🐱","🐰","🐼","🌈","🐥","🐸","🦊","🦄"];
+  var AVATAR_COLOR = ["#FFC53A","#4CA6FF","#FF7AA2","#2ECF7C","#FF8A4C","#A78BFA","#7EB8E8","#FF6B4A","#FFE27A","#3EDC86","#FF9F43","#C084FC"];
+
+  var state = {
+    sound: true,
+    level: 1,
+    screen: "players",
+    questions: [],
+    index: 0,
+    score: 0,
+    streak: 0,
+    maxStreak: 0,
+    correctCount: 0,
+    totalTime: 0,
+    showedTip: false,
+    answering: false,
+    startAt: 0,
+    raf: 0,
+    lastResult: null,
+    answerFormat: "remainder"
+  };
+
+  var audio = { ctx: null };
+
+  function emptyBest() {
+    var b = {};
+    for (var i = 1; i <= H.LEVEL_COUNT; i++) b[i] = 0;
+    return b;
+  }
+
+  function emptyCleared() {
+    var c = {};
+    for (var i = 1; i <= H.LEVEL_COUNT; i++) c[i] = false;
+    return c;
+  }
+
+  function emptyProgress() {
+    return { best: emptyBest(), cleared: emptyCleared(), unlocked: 1, answerFormat: "remainder" };
+  }
+
+  function normalizeProgress(src) {
+    var p = emptyProgress();
+    if (!src) return p;
+    p.unlocked = Math.min(H.LEVEL_COUNT, Math.max(1, Number(src.unlocked) || 1));
+    p.answerFormat = src.answerFormat === "decimal" ? "decimal" : "remainder";
+    if (src.best) {
+      for (var i = 1; i <= H.LEVEL_COUNT; i++) p.best[i] = Number(src.best[i]) || 0;
+    }
+    if (src.cleared) {
+      for (var j = 1; j <= H.LEVEL_COUNT; j++) p.cleared[j] = !!src.cleared[j];
+    }
+    return p;
+  }
+
+  function makePlayer(name, emoji, color, progress, id) {
+    var p = normalizeProgress(progress);
+    p.id = id || ("p" + Date.now() + "-" + Math.floor(Math.random() * 1000));
+    p.name = (name || "プレイヤー1").trim().slice(0, 12) || "プレイヤー1";
+    p.emoji = AVATAR_EMOJI.indexOf(emoji) >= 0 ? emoji : AVATAR_EMOJI[0];
+    p.color = AVATAR_COLOR.indexOf(color) >= 0 ? color : AVATAR_COLOR[0];
+    return p;
+  }
+
+  function defaultRoot() {
+    var p = makePlayer("プレイヤー1", "😊", "#FFC53A", null, "p1");
+    return { version: 3, sound: true, currentId: "p1", players: [p] };
+  }
+
+  function migrateFromV2(raw) {
+    try {
+      var data = JSON.parse(raw);
+      if (!data || data.players) return null;
+      var prog = normalizeProgress(data);
+      var p = makePlayer("プレイヤー1", "😊", "#FFC53A", prog, "p1");
+      return { version: 3, sound: data.sound !== false, currentId: "p1", players: [p] };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function normalizeRoot(data) {
+    var root = defaultRoot();
+    if (!data) return root;
+    root.sound = data.sound !== false;
+    var list = [];
+    if (Array.isArray(data.players) && data.players.length) {
+      for (var i = 0; i < data.players.length && list.length < MAX_PLAYERS; i++) {
+        var src = data.players[i];
+        list.push(makePlayer(src.name, src.emoji, src.color, src, src.id || ("p" + (i + 1))));
+      }
+    }
+    if (!list.length) list = root.players;
+    root.players = list;
+    var cur = data.currentId;
+    var found = false;
+    for (var j = 0; j < list.length; j++) if (list[j].id === cur) found = true;
+    root.currentId = found ? cur : list[0].id;
+    return root;
+  }
+
+  function loadRoot() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return normalizeRoot(JSON.parse(raw));
+      var v2 = localStorage.getItem(STORAGE_KEY_V2);
+      if (v2) {
+        var migrated = migrateFromV2(v2);
+        if (migrated) {
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated)); } catch (e2) {}
+          return migrated;
+        }
+      }
+      return defaultRoot();
+    } catch (e) {
+      return defaultRoot();
+    }
+  }
+
+  function saveRoot(root) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(root)); } catch (e) {}
+    return root;
+  }
+
+  function findPlayer(root, id) {
+    for (var i = 0; i < root.players.length; i++) {
+      if (root.players[i].id === id) return root.players[i];
+    }
+    return root.players[0] || null;
+  }
+
+  function currentPlayer(root) {
+    root = root || loadRoot();
+    return findPlayer(root, root.currentId);
+  }
+
+  function defaultStore() {
+    return playerToView(makePlayer("プレイヤー1", "😊", "#FFC53A", null, "p1"), true);
+  }
+
+  function playerToView(p, sound) {
+    return {
+      best: p.best,
+      cleared: p.cleared,
+      unlocked: p.unlocked,
+      answerFormat: p.answerFormat,
+      sound: sound !== false,
+      player: p
+    };
+  }
+
+  function loadStore() {
+    var root = loadRoot();
+    return playerToView(currentPlayer(root), root.sound);
+  }
+
+  function saveStore(partial) {
+    var root = loadRoot();
+    var p = currentPlayer(root);
+    if (partial.best) {
+      for (var k in partial.best) p.best[k] = partial.best[k];
+    }
+    if (partial.cleared) {
+      for (var c in partial.cleared) p.cleared[c] = partial.cleared[c];
+    }
+    if (typeof partial.unlocked === "number") p.unlocked = partial.unlocked;
+    if (partial.answerFormat) p.answerFormat = partial.answerFormat;
+    if (typeof partial.sound === "boolean") root.sound = partial.sound;
+    saveRoot(root);
+    return playerToView(p, root.sound);
+  }
+
+  function levelBand(n) {
+    if (n <= 5) return "band-a";
+    if (n <= 10) return "band-b";
+    if (n <= 15) return "band-c";
+    return "band-d";
+  }
+
+  var toastTimer = 0;
+  function showToast(msg) {
+    var el = $("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove("show"); }, 1800);
+  }
+
+  function renderLevelGrid(view) {
+    view = view || loadStore();
+    var grid = $("level-grid");
+    grid.innerHTML = "";
+    var clearedN = 0;
+    for (var i = 1; i <= H.LEVEL_COUNT; i++) if (view.cleared[i]) clearedN++;
+    $("progress-line").textContent = "クリア " + clearedN + "/" + H.LEVEL_COUNT + "　正かい " + H.CLEAR_CORRECT + "問以上で 次が開きます";
+    var nextOpen = view.unlocked;
+    for (var n = 1; n <= H.LEVEL_COUNT; n++) {
+      var cfg = H.getLevel(n);
+      var btn = document.createElement("button");
+      btn.type = "button";
+      var locked = n > view.unlocked;
+      btn.className = "level-btn " + (locked ? "locked" : "open " + levelBand(n));
+      if (!locked && view.cleared[n]) btn.classList.add("cleared");
+      if (!locked && n === nextOpen && !view.cleared[n]) btn.classList.add("next-open");
+      btn.setAttribute("data-level", String(n));
+      btn.setAttribute("aria-label", locked ? ("レベル" + n + "、まだ開けません") : ("レベル" + n + "、" + cfg.timeLimit + "秒"));
+      var best = view.best[n] || 0;
+      btn.innerHTML = '<span class="lv">' + (locked ? "🔒 " : "") + n + "</span>" +
+        '<span class="sec">' + cfg.timeLimit + "秒</span>" +
+        (best > 0 && !locked ? '<span class="meta">' + best + "点</span>" : "");
+      btn.addEventListener("click", (function (lv, isLocked) {
+        return function () {
+          if (isLocked) {
+            showToast("前のレベルを クリアしよう！");
+            return;
+          }
+          ensureAudio();
+          sfx("click");
+          startRound(lv);
+        };
+      })(n, locked));
+      grid.appendChild(btn);
+    }
+  }
+
+  function ensureAudio() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audio.ctx) audio.ctx = new AC();
+    if (audio.ctx.state === "suspended") audio.ctx.resume();
+    return audio.ctx;
+  }
+
+  function beep(freq, dur, type, gain, at) {
+    if (!state.sound) return;
+    var ctx = ensureAudio();
+    if (!ctx) return;
+    var t0 = ctx.currentTime + (at || 0);
+    var osc = ctx.createOscillator();
+    var g = ctx.createGain();
+    osc.type = type || "sine";
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(gain || 0.08, t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function sfx(name) {
+    if (!state.sound) return;
+    if (name === "click") beep(880, 0.06, "triangle", 0.05);
+    else if (name === "correct") {
+      beep(523.25, 0.1, "sine", 0.08, 0);
+      beep(659.25, 0.1, "sine", 0.08, 0.08);
+      beep(783.99, 0.18, "sine", 0.09, 0.16);
+    } else if (name === "combo") {
+      beep(659.25, 0.08, "sine", 0.07, 0);
+      beep(783.99, 0.08, "sine", 0.07, 0.07);
+      beep(987.77, 0.08, "sine", 0.07, 0.14);
+      beep(1318.5, 0.2, "triangle", 0.08, 0.22);
+    } else if (name === "wrong") {
+      beep(220, 0.22, "square", 0.05, 0);
+      beep(174, 0.28, "square", 0.05, 0.08);
+    } else if (name === "timeout") {
+      beep(150, 0.35, "sawtooth", 0.04);
+    } else if (name === "start") {
+      beep(392, 0.1, "triangle", 0.07, 0);
+      beep(523.25, 0.18, "triangle", 0.08, 0.1);
+    } else if (name === "fanfare") {
+      beep(523.25, 0.12, "sine", 0.08, 0);
+      beep(659.25, 0.12, "sine", 0.08, 0.12);
+      beep(783.99, 0.12, "sine", 0.08, 0.24);
+      beep(1046.5, 0.3, "triangle", 0.09, 0.36);
+    }
+  }
+
+  function $(id) { return document.getElementById(id); }
+
+  function showScreen(name) {
+    state.screen = name;
+    ["players", "title", "play", "explain", "result"].forEach(function (s) {
+      $("screen-" + s).classList.toggle("active", s === name);
+    });
+    var inGame = name === "play" || name === "explain";
+    $("hud").classList.toggle("hidden", !inGame);
+    $("btn-back").classList.toggle("hidden", name === "title" || name === "players");
+    $("btn-player").classList.toggle("hidden", name !== "title");
+    $("top-spacer").style.display = inGame ? "none" : "block";
+    if (name === "title" || name === "result" || name === "players") updatePlayerChip();
+  }
+
+  function renderFormatToggle(view) {
+    view = view || loadStore();
+    var box = $("format-toggle");
+    var unlocked = view.unlocked >= H.DECIMAL_UNLOCK_LEVEL;
+    box.classList.toggle("hidden", !unlocked);
+    if (!unlocked) return;
+    var dec = (view.answerFormat || state.answerFormat) === "decimal";
+    $("fmt-rem").classList.toggle("on", !dec);
+    $("fmt-dec").classList.toggle("on", dec);
+    $("fmt-hint").textContent = dec
+      ? "小数まで わり進めると、答えは 同じになります"
+      : "商は同じでも、あまりは 変わるよ";
+  }
+
+  function updatePlayerChip() {
+    var p = currentPlayer();
+    if (!p) return;
+    $("chip-av").textContent = p.emoji;
+    $("chip-av").style.background = p.color;
+    $("chip-name").textContent = p.name;
+    var rp = $("result-player");
+    if (rp) {
+      rp.innerHTML = '<span class="av" style="background:' + p.color + '">' + p.emoji + "</span><span>" + escapeHtml(p.name) + "</span>";
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function clearedCount(p) {
+    var n = 0;
+    for (var i = 1; i <= H.LEVEL_COUNT; i++) if (p.cleared[i]) n++;
+    return n;
+  }
+
+  function renderPlayerList() {
+    var root = loadRoot();
+    var list = $("player-list");
+    list.innerHTML = "";
+    root.players.forEach(function (p) {
+      var card = document.createElement("div");
+      card.className = "player-card" + (p.id === root.currentId ? " current" : "");
+      var pick = document.createElement("button");
+      pick.type = "button";
+      pick.className = "player-pick";
+      pick.setAttribute("aria-label", p.name + "で 遊ぶ");
+      var av = document.createElement("span");
+      av.className = "av";
+      av.style.background = p.color;
+      av.textContent = p.emoji;
+      var info = document.createElement("span");
+      info.className = "info";
+      info.innerHTML = '<div class="pname">' + escapeHtml(p.name) + "</div>" +
+        '<div class="pmeta">クリア ' + clearedCount(p) + "/" + H.LEVEL_COUNT + "</div>";
+      pick.appendChild(av);
+      pick.appendChild(info);
+      pick.addEventListener("click", function () { choosePlayer(p.id); });
+      var acts = document.createElement("span");
+      acts.className = "pacts";
+      var ed = document.createElement("button");
+      ed.type = "button";
+      ed.className = "mini-btn";
+      ed.textContent = "名前を変える";
+      ed.addEventListener("click", function () { openEditor("edit", p); });
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "mini-btn danger";
+      del.textContent = "消す";
+      del.addEventListener("click", function () { requestDeletePlayer(p); });
+      acts.appendChild(ed);
+      acts.appendChild(del);
+      card.appendChild(pick);
+      card.appendChild(acts);
+      list.appendChild(card);
+    });
+  }
+
+  function choosePlayer(id) {
+    var root = loadRoot();
+    if (!findPlayer(root, id)) return;
+    root.currentId = id;
+    saveRoot(root);
+    var p = currentPlayer(root);
+    state.answerFormat = p.answerFormat;
+    sfx("click");
+    refreshBests();
+    showScreen("title");
+  }
+
+  var editor = { mode: "add", id: null, emoji: AVATAR_EMOJI[0], color: AVATAR_COLOR[0] };
+
+  function paintEditorChoices() {
+    var eg = $("emoji-grid");
+    var cg = $("color-grid");
+    eg.innerHTML = "";
+    cg.innerHTML = "";
+    AVATAR_EMOJI.forEach(function (em) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "emoji-pick" + (em === editor.emoji ? " on" : "");
+      b.textContent = em;
+      b.addEventListener("click", function () {
+        editor.emoji = em;
+        paintEditorChoices();
+      });
+      eg.appendChild(b);
+    });
+    AVATAR_COLOR.forEach(function (col) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "color-pick" + (col === editor.color ? " on" : "");
+      b.style.background = col;
+      b.setAttribute("aria-label", "色");
+      b.addEventListener("click", function () {
+        editor.color = col;
+        paintEditorChoices();
+      });
+      cg.appendChild(b);
+    });
+  }
+
+  function openEditor(mode, player) {
+    editor.mode = mode;
+    editor.id = player ? player.id : null;
+    editor.emoji = player ? player.emoji : AVATAR_EMOJI[Math.floor(Math.random() * AVATAR_EMOJI.length)];
+    editor.color = player ? player.color : AVATAR_COLOR[Math.floor(Math.random() * AVATAR_COLOR.length)];
+    $("editor-title").textContent = mode === "edit" ? "名前を変える" : "新しいプレイヤー";
+    $("btn-editor-save").textContent = mode === "edit" ? "変える" : "作る";
+    $("player-name").value = player ? player.name : "";
+    paintEditorChoices();
+    $("player-editor").classList.remove("hidden");
+    setTimeout(function () { $("player-name").focus(); }, 50);
+  }
+
+  function closeEditor() {
+    $("player-editor").classList.add("hidden");
+  }
+
+  function saveEditor() {
+    var name = ($("player-name").value || "").trim();
+    if (!name) {
+      showToast("名前を 入れてね");
+      return;
+    }
+    var root = loadRoot();
+    if (editor.mode === "add") {
+      if (root.players.length >= MAX_PLAYERS) {
+        showToast("これ以上は 作れません");
+        return;
+      }
+      var np = makePlayer(name, editor.emoji, editor.color);
+      root.players.push(np);
+      root.currentId = np.id;
+      saveRoot(root);
+      state.answerFormat = np.answerFormat;
+    } else {
+      var p = findPlayer(root, editor.id);
+      if (p) {
+        p.name = name.slice(0, 12);
+        p.emoji = editor.emoji;
+        p.color = editor.color;
+        saveRoot(root);
+      }
+    }
+    closeEditor();
+    sfx("click");
+    renderPlayerList();
+    updatePlayerChip();
+  }
+
+  var pendingDeleteId = null;
+
+  function requestDeletePlayer(p) {
+    var root = loadRoot();
+    if (root.players.length <= 1) {
+      showToast("ひとりは 残してね");
+      return;
+    }
+    pendingDeleteId = p.id;
+    $("confirm-title").textContent = "消しますか？";
+    $("confirm-body").textContent = p.name + " を 本当に消しますか？ 記録も 消えます。";
+    $("player-confirm").classList.remove("hidden");
+  }
+
+  function closeConfirm() {
+    pendingDeleteId = null;
+    $("player-confirm").classList.add("hidden");
+  }
+
+  function confirmDelete() {
+    if (!pendingDeleteId) return;
+    var root = loadRoot();
+    if (root.players.length <= 1) {
+      closeConfirm();
+      showToast("ひとりは 残してね");
+      return;
+    }
+    root.players = root.players.filter(function (p) { return p.id !== pendingDeleteId; });
+    if (root.currentId === pendingDeleteId) root.currentId = root.players[0].id;
+    saveRoot(root);
+    state.answerFormat = currentPlayer(root).answerFormat;
+    closeConfirm();
+    sfx("click");
+    renderPlayerList();
+    updatePlayerChip();
+  }
+
+  function refreshBests() {
+    var view = loadStore();
+    renderLevelGrid(view);
+    renderFormatToggle(view);
+    updatePlayerChip();
+  }
+
+  function setAnswerFormat(fmt) {
+    state.answerFormat = fmt === "decimal" ? "decimal" : "remainder";
+    saveStore({ answerFormat: state.answerFormat });
+    renderFormatToggle();
+    sfx("click");
+  }
+
+  function refreshSoundBtn() {
+    $("btn-sound").textContent = state.sound ? "🔊" : "🔇";
+    $("btn-sound").classList.toggle("off", !state.sound);
+    $("btn-sound").setAttribute("aria-pressed", state.sound ? "true" : "false");
+  }
+
+  function renderChoices(container, question, opt) {
+    opt = opt || {};
+    container.innerHTML = "";
+    var fmt = question.format === "decimal" ? "decimal" : "remainder";
+    var showVal = !!(opt.reveal || question.showQR || (fmt === "decimal" && opt.reveal));
+    if (fmt === "decimal" && opt.reveal) showVal = true;
+    question.choices.forEach(function (c, i) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice";
+      btn.dataset.index = String(i);
+      btn.appendChild(document.createTextNode(c.text));
+      if (showVal || (question.showQR && fmt === "remainder")) {
+        var sub = document.createElement("span");
+        sub.className = "choice-sub";
+        sub.textContent = H.formatAnswer(c.dividend, c.divisor, fmt);
+        btn.appendChild(sub);
+      } else if (opt.reveal) {
+        var sub2 = document.createElement("span");
+        sub2.className = "choice-sub";
+        sub2.textContent = H.formatAnswer(c.dividend, c.divisor, fmt);
+        btn.appendChild(sub2);
+      }
+      if (opt.reveal) {
+        btn.disabled = true;
+        if (c.isOdd) btn.classList.add("odd-reveal");
+        if (opt.picked === i && !c.isOdd) btn.classList.add("wrong-pick");
+        if (opt.picked !== i && !c.isOdd) btn.classList.add("dim");
+      } else {
+        btn.addEventListener("click", function () { submitAnswer(i); });
+      }
+      container.appendChild(btn);
+    });
+  }
+
+  function formatForLevel(level) {
+    if (level < H.DECIMAL_UNLOCK_LEVEL) return "remainder";
+    return state.answerFormat === "decimal" ? "decimal" : "remainder";
+  }
+
+  function setPrompt(q) {
+    var ruby = '<ruby>商<rt>しょう</rt></ruby>';
+    var label = $("q-label");
+    if (q.format === "decimal") {
+      label.innerHTML = "次の わり算と、小数まで わり進めた 答えが 同じ式は どれ？";
+    } else if (q.showQR) {
+      label.innerHTML = "次の わり算と " + ruby + "が 同じ式は どれ？ あまりにも 気を付けて！";
+    } else {
+      label.innerHTML = "次の わり算と " + ruby + "が 同じ式は どれ？";
+    }
+  }
+
+  function startRound(level) {
+    state.level = Number(level) || 1;
+    state.questions = [];
+    var fmt = formatForLevel(state.level);
+    for (var i = 0; i < QUESTIONS_PER_ROUND; i++) {
+      state.questions.push(H.generateQuestion(state.level, Math.random, { format: fmt }));
+    }
+    state.index = 0;
+    state.score = 0;
+    state.streak = 0;
+    state.maxStreak = 0;
+    state.correctCount = 0;
+    state.totalTime = 0;
+    state.showedTip = false;
+    sfx("start");
+    updateHud();
+    showQuestion();
+  }
+
+  function updateHud() {
+    $("hud-q").textContent = String(Math.min(state.index + 1, QUESTIONS_PER_ROUND));
+    $("hud-score").textContent = String(state.score);
+    $("hud-streak").textContent = String(state.streak);
+    $("hud-combo").classList.toggle("on", state.streak >= 2);
+    $("play-level").textContent = "レベル" + state.level;
+  }
+
+  function showQuestion() {
+    cancelTimer();
+    var q = state.questions[state.index];
+    setPrompt(q);
+    $("base-expr").textContent = q.base.text;
+    var card = $("prompt-card");
+    card.classList.remove("pop");
+    void card.offsetWidth;
+    card.classList.add("pop");
+    renderChoices($("choices"), q, {});
+    updateHud();
+    showScreen("play");
+    state.answering = true;
+    state.startAt = performance.now();
+    tickTimer();
+  }
+
+  function remainingSec() {
+    var limit = H.getLevel(state.level).timeLimit * 1000;
+    return Math.max(0, limit - (performance.now() - state.startAt));
+  }
+
+  function tickTimer() {
+    var limit = H.getLevel(state.level).timeLimit * 1000;
+    var left = remainingSec();
+    var sec = left / 1000;
+    var el = $("timer-sec");
+    el.textContent = sec.toFixed(1);
+    el.classList.toggle("warn", sec <= 3);
+    $("timer-bar").style.transform = "scaleX(" + (left / limit) + ")";
+    if (left <= 0) {
+      submitAnswer(-1);
+      return;
+    }
+    state.raf = requestAnimationFrame(tickTimer);
+  }
+
+  function cancelTimer() {
+    if (state.raf) cancelAnimationFrame(state.raf);
+    state.raf = 0;
+  }
+
+  function submitAnswer(picked) {
+    if (!state.answering || state.screen !== "play") return;
+    state.answering = false;
+    cancelTimer();
+    var q = state.questions[state.index];
+    var limit = H.getLevel(state.level).timeLimit;
+    var used = Math.min(limit, (performance.now() - state.startAt) / 1000);
+    if (picked < 0) used = limit;
+    state.totalTime += used;
+    var leftover = Math.max(0, limit - used);
+    var ok = picked === q.oddIndex;
+    var gained = 0;
+    var speed = 0;
+    var mult = 1;
+    if (ok) {
+      state.correctCount += 1;
+      state.streak += 1;
+      if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+      speed = Math.round(100 * leftover / limit);
+      var basePts = 100 + speed;
+      mult = H.comboMultiplier(state.streak);
+      gained = Math.round(basePts * mult);
+      state.score += gained;
+      if (state.streak >= 3) sfx("combo");
+      else sfx("correct");
+    } else {
+      state.streak = 0;
+      sfx(picked < 0 ? "timeout" : "wrong");
+    }
+    updateHud();
+    state.lastResult = { ok: ok, picked: picked, used: used, gained: gained, speed: speed, mult: mult, timeout: picked < 0 };
+    showExplain();
+  }
+
+  function showExplain() {
+    var q = state.questions[state.index];
+    var r = state.lastResult;
+    var judge = $("judge");
+    if (r.timeout) {
+      judge.textContent = "時間切れ…";
+      judge.className = "judge ng";
+    } else if (r.ok) {
+      judge.textContent = r.mult >= 1.5 ? "すばらしい！" : "正かい！";
+      judge.className = "judge ok";
+    } else {
+      judge.textContent = "残念…";
+      judge.className = "judge ng";
+    }
+    var gain = $("gain");
+    if (r.ok) {
+      gain.innerHTML = '<span class="big">+' + r.gained + "点</span>　速さ +" + r.speed +
+        (r.mult > 1 ? "　連続 ×" + r.mult : "") +
+        "　" + r.used.toFixed(1) + "秒";
+    } else {
+      gain.textContent = r.timeout ? "次は 落ち着いて さがしてみよう" : "仲間外れは 緑の式だよ";
+    }
+    renderChoices($("explain-choices"), q, { reveal: true, picked: r.picked });
+    var exp = H.buildExplanation(q);
+    var html = exp.html;
+    var showTip = false;
+    if (exp.tip) {
+      var qn = state.index + 1;
+      if (!state.showedTip && (qn === 3 || qn === 6 || qn === 8 || qn === 10)) showTip = true;
+      else if (!state.showedTip && qn >= 8) showTip = true;
+      else if (Math.random() < 0.35) showTip = true;
+    }
+    if (showTip && exp.tip) {
+      state.showedTip = true;
+      html += '<div class="tip-box"><div class="t">💡 ワンポイント</div>' + exp.tip + "</div>";
+    }
+    $("explain-body").innerHTML = html;
+    $("btn-next").textContent = state.index + 1 >= QUESTIONS_PER_ROUND ? "結果を見る" : "次へ";
+    showScreen("explain");
+  }
+
+  function nextStep() {
+    sfx("click");
+    if (state.index + 1 >= QUESTIONS_PER_ROUND) {
+      showResult();
+    } else {
+      state.index += 1;
+      showQuestion();
+    }
+  }
+
+  function commentFor(score, correct) {
+    if (correct === 10 && score >= 1800) return "完ぺき！早おしマスター！";
+    if (correct === 10) return "全問正かい、すごい！";
+    if (correct >= 8) return "おつかれさま！とても良くできたよ！";
+    if (correct >= 5) return "おつかれさま！もう少しで もっと速くなれるよ！";
+    return "おつかれさま！説明を読んで、もう一度 ちょうせん！";
+  }
+
+  function showResult() {
+    var store = loadStore();
+    var lv = state.level;
+    var prev = store.best[lv] || 0;
+    var isNew = state.score > prev;
+    var cleared = state.correctCount >= H.CLEAR_CORRECT;
+    var justUnlocked = false;
+    var patch = {};
+    if (isNew) {
+      patch.best = {};
+      patch.best[lv] = state.score;
+    }
+    if (cleared) {
+      patch.cleared = {};
+      patch.cleared[lv] = true;
+      if (lv < H.LEVEL_COUNT && store.unlocked < lv + 1) {
+        patch.unlocked = lv + 1;
+        justUnlocked = true;
+      }
+    }
+    if (Object.keys(patch).length) store = saveStore(patch);
+    $("result-mode").textContent = "レベル" + lv;
+    if (cleared && lv === H.LEVEL_COUNT) {
+      $("result-title").textContent = "全レベル クリア！すごい！";
+    } else if (cleared) {
+      $("result-title").textContent = "レベル" + lv + " クリア！";
+    } else {
+      $("result-title").textContent = commentFor(state.score, state.correctCount);
+    }
+    $("result-score").textContent = String(state.score);
+    $("new-best").classList.toggle("show", isNew);
+    $("stat-acc").textContent = state.correctCount + "/" + QUESTIONS_PER_ROUND;
+    $("stat-rate").textContent = Math.round(state.correctCount / QUESTIONS_PER_ROUND * 100) + "%";
+    $("stat-time").textContent = state.totalTime.toFixed(1) + "秒";
+    $("stat-streak").textContent = String(state.maxStreak);
+    var bestNow = store.best[lv] || state.score;
+    var line;
+    if (cleared && justUnlocked) line = "次のレベルが 開きました！";
+    else if (cleared && lv === H.LEVEL_COUNT) line = "全部のレベルを クリアしたよ！";
+    else if (cleared) line = "このレベルの 最高点は " + bestNow + "点";
+    else line = "正かい " + H.CLEAR_CORRECT + "問以上で 次のレベルが 開きます。";
+    if (isNew && line.indexOf("最高点") < 0 && cleared) line = "新記録！ " + line;
+    $("result-best-line").textContent = isNew && !cleared
+      ? "これまでの最高点を こえました！"
+      : line;
+    var nextBtn = $("btn-next-level");
+    if (cleared && lv < H.LEVEL_COUNT) {
+      nextBtn.classList.remove("hidden");
+      nextBtn.textContent = "レベル" + (lv + 1) + "へ　次のレベルへ";
+    } else {
+      nextBtn.classList.add("hidden");
+    }
+    showScreen("result");
+    sfx("fanfare");
+  }
+
+  function goTitle() {
+    cancelTimer();
+    state.answering = false;
+    refreshBests();
+    showScreen("title");
+  }
+
+  $("btn-sound").addEventListener("click", function () {
+    state.sound = !state.sound;
+    saveStore({ sound: state.sound });
+    refreshSoundBtn();
+    if (state.sound) {
+      ensureAudio();
+      sfx("click");
+    }
+  });
+
+  $("btn-back").addEventListener("click", function () {
+    sfx("click");
+    goTitle();
+  });
+
+  $("btn-next").addEventListener("click", nextStep);
+  $("btn-again").addEventListener("click", function () {
+    ensureAudio();
+    startRound(state.level);
+  });
+  $("btn-next-level").addEventListener("click", function () {
+    ensureAudio();
+    startRound(state.level + 1);
+  });
+  $("btn-title").addEventListener("click", function () {
+    sfx("click");
+    goTitle();
+  });
+  $("fmt-rem").addEventListener("click", function () { setAnswerFormat("remainder"); });
+  $("fmt-dec").addEventListener("click", function () { setAnswerFormat("decimal"); });
+  $("btn-player").addEventListener("click", function () {
+    sfx("click");
+    renderPlayerList();
+    showScreen("players");
+  });
+  $("btn-add-player").addEventListener("click", function () {
+    sfx("click");
+    if (loadRoot().players.length >= MAX_PLAYERS) {
+      showToast("これ以上は 作れません");
+      return;
+    }
+    openEditor("add", null);
+  });
+  $("btn-editor-cancel").addEventListener("click", function () { sfx("click"); closeEditor(); });
+  $("btn-editor-save").addEventListener("click", function () { saveEditor(); });
+  $("btn-confirm-no").addEventListener("click", function () { sfx("click"); closeConfirm(); });
+  $("btn-confirm-yes").addEventListener("click", function () { confirmDelete(); });
+  $("player-editor").addEventListener("click", function (ev) {
+    if (ev.target === $("player-editor")) { sfx("click"); closeEditor(); }
+  });
+  $("player-confirm").addEventListener("click", function (ev) {
+    if (ev.target === $("player-confirm")) { sfx("click"); closeConfirm(); }
+  });
+
+  var store0 = loadStore();
+  state.sound = store0.sound;
+  state.answerFormat = store0.answerFormat === "decimal" ? "decimal" : "remainder";
+  refreshSoundBtn();
+  renderPlayerList();
+  refreshBests();
+  if (!/[?&]preview=/.test(location.search)) showScreen("players");
+
+  function showcaseQuestion() {
+    return {
+      difficulty: "normal",
+      base: { dividend: 1800, divisor: 32, text: "1800÷32", kind: "base", fd: 8, fm: 8, isOdd: false },
+      core: { dividend: 225, divisor: 4, text: "225÷4", q: 56, r: 1 },
+      baseFactor: 8,
+      choices: [
+        { dividend: 900, divisor: 16, text: "900÷16", kind: "correct", fd: 4, fm: 4, isOdd: false },
+        { dividend: 450, divisor: 8, text: "450÷8", kind: "correct", fd: 2, fm: 2, isOdd: false },
+        { dividend: 1800, divisor: 16, text: "1800÷16", kind: "trap", fd: 8, fm: 4, isOdd: true },
+        { dividend: 225, divisor: 4, text: "225÷4", kind: "correct", fd: 1, fm: 1, isOdd: false }
+      ],
+      oddIndex: 2,
+      hasRemainder: true,
+      format: "remainder",
+      showQR: true,
+      level: 16
+    };
+  }
+
+  if (/[?&]preview=players\b/.test(location.search)) {
+    showScreen("players");
+    var plist = $("player-list");
+    plist.innerHTML = "";
+    [
+      { name: "たろう", emoji: "🐱", color: "#FF8A4C", cleared: 15, current: true },
+      { name: "はなこ", emoji: "🌸", color: "#FF7AA2", cleared: 8, current: false },
+      { name: "けんじ", emoji: "⭐", color: "#4CA6FF", cleared: 20, current: false }
+    ].forEach(function (d) {
+      var card = document.createElement("button");
+      card.className = "player-card" + (d.current ? " current" : "");
+      card.innerHTML = '<button type="button" class="player-pick" aria-label="' + d.name + 'で 遊ぶ">' +
+        '<span class="av" style="background:' + d.color + '">' + d.emoji + "</span>" +
+        '<span class="info"><div class="pname">' + d.name + "</div>" +
+        '<div class="pmeta">クリア ' + d.cleared + "/20</div></span></button>" +
+        '<span class="pacts"><button type="button" class="mini-btn">名前を変える</button>' +
+        '<button type="button" class="mini-btn danger">消す</button></span>';
+      plist.appendChild(card);
+    });
+  }
+
+  if (/[?&]preview=select\b/.test(location.search) || /[?&]preview=levels\b/.test(location.search)) {
+    var demoProg = emptyProgress();
+    demoProg.unlocked = 16;
+    demoProg.answerFormat = "remainder";
+    for (var pi = 1; pi <= 15; pi++) {
+      demoProg.cleared[pi] = true;
+      demoProg.best[pi] = 800 + pi * 40;
+    }
+    var demoPlayer = makePlayer("たろう", "🐱", "#FF8A4C", demoProg, "demo");
+    saveRoot({ version: 3, sound: true, currentId: "demo", players: [demoPlayer] });
+    state.answerFormat = "remainder";
+    refreshBests();
+    showScreen("title");
+  }
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    startRound(16);
+    cancelTimer();
+    state.answering = false;
+    var demo = showcaseQuestion();
+    demo.level = 16;
+    state.questions[0] = demo;
+    state.index = 0;
+    $("base-expr").textContent = demo.base.text;
+    renderChoices($("choices"), demo, {});
+    $("timer-sec").textContent = String(H.getLevel(16).timeLimit) + ".0";
+    $("timer-bar").style.transform = "scaleX(1)";
+    showScreen("play");
+    updateHud();
+  }
+})();
+</script>
+</body>
+</html>
